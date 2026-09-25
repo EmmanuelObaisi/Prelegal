@@ -1,0 +1,35 @@
+LICENSE NOTICE FOR THE "templates" DIRECTORY
+
+All files in this directory are legal agreement templates created by Common Paper
+(https://commonpaper.com) and are licensed under the Creative Commons Attribution
+4.0 International License (CC BY 4.0).
+
+  License summary: https://creativecommons.org/licenses/by/4.0/
+  Full legal code: https://creativecommons.org/licenses/by/4.0/legalcode
+
+This license applies only to the contents of this directory. The rest of the
+Prelegal project is covered by the LICENSE file in the repository root.
+
+ATTRIBUTION
+
+The templates were copied without modification from the following Common Paper
+GitHub repositories (commit shown in brackets):
+
+  AI-Addendum.md                  https://github.com/CommonPaper/AI-Addendum                [6d9b044]
+  BAA.md                          https://github.com/CommonPaper/BAA                        [5f1fd99]
+  CSA.md                          https://github.com/CommonPaper/CSA                        [0029665]
+  design-partner-agreement.md     https://github.com/CommonPaper/Design-Partner-Agreement   [94a1cf8]
+  DPA.md                          https://github.com/CommonPaper/DPA                        [9f1c40d]
+  Mutual-NDA.md                   https://github.com/CommonPaper/Mutual-NDA                 [2a3068b]
+  Mutual-NDA-coverpage.md         https://github.com/CommonPaper/Mutual-NDA                 [2a3068b]
+  Partnership-Agreement.md        https://github.com/CommonPaper/Partnership-Agreement      [6edeb5a]
+  Pilot-Agreement.md              https://github.com/CommonPaper/Pilot-Agreement            [5e7cdd4]
+  psa.md                          https://github.com/CommonPaper/PSA                        [3fb650a]
+  sla.md                          https://github.com/CommonPaper/SLA                        [5b0e633]
+  Software-License-Agreement.md   https://github.com/CommonPaper/Software-License-Agreement [8ea7de3]
+
+Use of these templates does not imply endorsement of Prelegal by Common Paper.
+
+If Prelegal modifies these templates for a user, the resulting documents are
+adaptations and must continue to credit Common Paper, link to the CC BY 4.0
+license, and indicate that changes were made.

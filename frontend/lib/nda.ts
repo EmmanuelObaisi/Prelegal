@@ -151,7 +151,7 @@ export function fillCoverPage(template: string, data: NdaData): string {
 /** A download filename such as `Mutual-NDA-Acme-Globex.pdf`. */
 export function pdfFilename(data: NdaData): string {
   const names = data.parties
-    .map((party) => party.company.trim().replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, ""))
+    .map((party) => party.company.trim().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, ""))
     .filter(Boolean);
   return ["Mutual-NDA", ...names].join("-") + ".pdf";
 }

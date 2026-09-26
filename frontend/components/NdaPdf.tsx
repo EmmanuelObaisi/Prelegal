@@ -1,4 +1,4 @@
-import { Document, Link, Page, pdf, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Document, Font, Link, Page, pdf, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { List, ListItem, Nodes, Root, Table } from "mdast";
 import type { ReactNode } from "react";
 import type { Mark } from "@/lib/nda-document";
@@ -8,20 +8,43 @@ import type { Mark } from "@/lib/nda-document";
  * Loaded on demand (it pulls in @react-pdf/renderer) when the user downloads.
  */
 
+/**
+ * Newsreader, the preview's serif, served from public/fonts. react-pdf only
+ * fetches absolute URLs (anything else is read as a local file path), and this
+ * module only ever loads in the browser, so the page origin is available.
+ */
+const fontUrl = (file: string) => new URL(`/fonts/newsreader/${file}`, window.location.origin).href;
+Font.register({
+  family: "Newsreader",
+  fonts: [
+    { src: fontUrl("newsreader-400-normal.woff") },
+    { src: fontUrl("newsreader-400-italic.woff"), fontStyle: "italic" },
+    { src: fontUrl("newsreader-600-normal.woff"), fontWeight: 600 },
+    { src: fontUrl("newsreader-700-normal.woff"), fontWeight: 700 },
+  ],
+});
+
+/**
+ * Newsreader's fi/ff/fl ligatures are embedded without a text mapping, so
+ * copying or searching the PDF would find "Confdential". Plain glyphs keep
+ * the text layer faithful.
+ */
+const NO_LIGATURES = { liga: false };
+
 const INK = "#2446a8";
 const MUTED = "#5b6472";
 const RULE = "#c3cad4";
 const TYPE = "#1a1d23";
 
 const s = StyleSheet.create({
-  page: { paddingVertical: 56, paddingHorizontal: 64, fontFamily: "Times-Roman", fontSize: 10.5, lineHeight: 1.4, color: TYPE },
-  h1: { fontFamily: "Times-Bold", fontSize: 18, textAlign: "center", marginBottom: 18 },
-  h2: { fontFamily: "Times-Bold", fontSize: 11.5, marginTop: 14, marginBottom: 6 },
+  page: { paddingVertical: 56, paddingHorizontal: 64, fontFamily: "Newsreader", fontSize: 10.5, lineHeight: 1.4, color: TYPE, fontFeatureSettings: NO_LIGATURES },
+  h1: { fontWeight: 600, fontSize: 18, textAlign: "center", marginBottom: 18 },
+  h2: { fontWeight: 600, fontSize: 11.5, marginTop: 14, marginBottom: 6 },
   h3: { fontFamily: "Helvetica-Bold", fontSize: 9, color: MUTED, marginTop: 12, marginBottom: 2 },
   paragraph: { marginVertical: 4 },
   listItem: { flexDirection: "row", marginVertical: 4 },
   spreadItem: { marginVertical: 6 },
-  number: { width: 20, fontFamily: "Times-Bold" },
+  number: { width: 20, fontWeight: 700 },
   checkbox: { width: 8, height: 8, borderWidth: 0.75, borderColor: RULE, marginTop: 3.5, marginRight: 10, alignItems: "center", justifyContent: "center" },
   checkboxOn: { borderColor: INK },
   checkboxFill: { width: 4, height: 4, backgroundColor: INK },
@@ -34,8 +57,8 @@ const s = StyleSheet.create({
   rowHeader: { flex: 1.2, fontFamily: "Helvetica", fontSize: 9 },
   headCell: { fontFamily: "Helvetica-Bold", fontSize: 9 },
   center: { textAlign: "center" },
-  strong: { fontFamily: "Times-Bold" },
-  emphasis: { fontFamily: "Times-Italic" },
+  strong: { fontWeight: 700 },
+  emphasis: { fontStyle: "italic" },
   link: { color: TYPE },
   field: { color: INK },
   hint: { fontFamily: "Helvetica", fontSize: 8, color: MUTED },

@@ -167,5 +167,9 @@ describe("helpers", () => {
   it("names the PDF after the parties", () => {
     expect(pdfFilename(filledData)).toBe("Mutual-NDA-Acme-Inc-Globex.pdf");
     expect(pdfFilename(defaultNdaData)).toBe("Mutual-NDA.pdf");
+    const [p1, p2] = filledData.parties;
+    expect(pdfFilename({ ...filledData, parties: [{ ...p1, company: "Zürich Café AG" }, p2] })).toBe(
+      "Mutual-NDA-Zürich-Café-AG-Globex.pdf",
+    );
   });
 });

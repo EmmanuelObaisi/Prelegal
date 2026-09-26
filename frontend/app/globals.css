@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/*
+ * The document is a sheet of paper on a cool desk. Everything the user types
+ * appears in pen-ink blue inside the black-type contract.
+ */
+@theme {
+  --color-desk: #d8dee6;
+  --color-paper: #ffffff;
+  --color-type: #1a1d23;
+  --color-ink: #2446a8;
+  --color-rule: #c3cad4;
+  --color-muted: #5b6472;
+
+  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+}
+
+body {
+  background: var(--color-desk);
+  color: var(--color-type);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}

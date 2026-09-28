@@ -14,7 +14,7 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: "Mutual NDA | Prelegal",
+  title: "Prelegal",
   description: "Fill in a few details and download a ready-to-sign Mutual Non-Disclosure Agreement.",
 };
 

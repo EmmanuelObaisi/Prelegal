@@ -31,3 +31,7 @@ Thumbs.db
 
 # Build artifacts
 frontend/out
+
+# Tests
+backend/tests
+backend/.pytest_cache

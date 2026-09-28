@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import NdaBuilder from "@/components/NdaBuilder";
+import SignInGate from "@/components/SignInGate";
 
 /**
  * The Common Paper templates live at the repository root, one level above this
@@ -27,5 +28,9 @@ export default async function Home() {
     readTemplate("Mutual-NDA.md"),
   ]);
 
-  return <NdaBuilder coverPageTemplate={coverPageTemplate} standardTerms={standardTerms} />;
+  return (
+    <SignInGate>
+      <NdaBuilder coverPageTemplate={coverPageTemplate} standardTerms={standardTerms} />
+    </SignInGate>
+  );
 }

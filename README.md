@@ -61,6 +61,12 @@ uv run uvicorn main:app --reload
 ```
 Available at http://localhost:8000
 
+### Tests
+```bash
+cd backend && uv run pytest
+cd frontend && npm test
+```
+
 ## Project Structure
 
 ```
@@ -74,9 +80,6 @@ prelegal/
 ## API Endpoints
 
 - `GET /api/health` - Health check
-- `POST /api/auth/signup` - Signup (placeholder)
-- `POST /api/auth/signin` - Signin (placeholder)
-- `GET /api/auth/me` - Current user (placeholder)
 
 ## License
 

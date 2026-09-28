@@ -12,6 +12,13 @@
   --color-rule: #c3cad4;
   --color-muted: #5b6472;
 
+  /* Brand */
+  --color-accent: #ecad0a;
+  --color-brand-blue: #209dd7;
+  --color-brand-purple: #753991;
+  --color-navy: #032147;
+  --color-gray-text: #888888;
+
   --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-newsreader), Georgia, serif;
 }

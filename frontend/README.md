@@ -1,12 +1,12 @@
 # Prelegal frontend
 
-A Next.js app for drafting a Mutual Non-Disclosure Agreement. The user fills in a form, sees the Common Paper Mutual NDA update live with their answers, and downloads it as a PDF.
+A Next.js app for drafting a Mutual Non-Disclosure Agreement. The user chats with an AI assistant that fills in the agreement's fields, sees the Common Paper Mutual NDA update live with their answers, and downloads it as a PDF.
 
 ## Running it
 
 ```bash
 npm install
-npm run dev     # http://localhost:3000
+npm run dev     # http://localhost:3000 (UI only: the chat needs FastAPI to serve the build)
 npm test        # unit tests (Vitest)
 npm run build   # static production build
 ```
@@ -19,10 +19,11 @@ Because of this, always build from a full checkout of the repository with `templ
 
 | File | Role |
 | --- | --- |
-| `lib/nda.ts` | The form's data model, and `fillCoverPage`, which swaps the cover page's `[bracketed]` placeholders for the user's answers. User input is markdown-escaped, so it is always shown as text. |
+| `lib/nda.ts` | The agreement's data model, and `fillCoverPage`, which swaps the cover page's `[bracketed]` placeholders for the user's answers. User input is markdown-escaped, so it is always shown as text. |
 | `lib/nda-document.ts` | `parseNdaMarkdown` parses markdown into an [mdast](https://github.com/syntax-tree/mdast) tree. The few inline tags the templates use (`<span class="coverpage_link">`, `<label>`) and the fill markers become `mark` nodes; any other HTML is kept as literal text. |
 | `components/NdaDocument.tsx` | Renders that tree as the on-screen preview. |
 | `components/NdaPdf.tsx` | Renders the same tree as a vector PDF with `@react-pdf/renderer`, loaded only when the user clicks **Download PDF**. |
-| `components/NdaForm.tsx`, `components/NdaBuilder.tsx` | The form, and the page that ties the form, preview and download together. |
+| `lib/chat.ts`, `components/NdaChat.tsx` | The chat: sends the conversation and current fields to `POST /api/chat` and applies the fields the assistant returns. |
+| `components/NdaBuilder.tsx` | The page that ties the chat, preview and download together. |
 
 Both renderers share one parsed tree, so the preview and the PDF always contain the same text.

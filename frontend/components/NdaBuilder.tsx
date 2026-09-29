@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import NdaDocument from "@/components/NdaDocument";
-import NdaForm from "@/components/NdaForm";
+import NdaChat from "@/components/NdaChat";
 import { defaultNdaData, fillCoverPage, pdfFilename, type NdaData } from "@/lib/nda";
 import { parseNdaMarkdown } from "@/lib/nda-document";
 
@@ -55,12 +55,14 @@ export default function NdaBuilder({ coverPageTemplate, standardTerms }: NdaBuil
       </header>
 
       <main className="grid flex-1 lg:min-h-0 lg:grid-cols-[minmax(22rem,26rem)_1fr]">
-        <section aria-label="Your details" className="border-rule bg-paper px-4 py-8 sm:px-6 lg:overflow-y-auto lg:border-r">
-          <p className="mb-8 text-[0.9375rem] leading-relaxed text-muted">
-            Answer a few questions and your answers appear in <span className="text-ink">blue</span> in the agreement.
+        <section aria-label="Chat with the assistant" className="flex flex-col border-rule bg-paper px-4 py-6 sm:px-6 lg:min-h-0 lg:border-r">
+          <p className="mb-4 text-[0.9375rem] leading-relaxed text-muted">
+            Chat with the assistant and your answers appear in <span className="text-ink">blue</span> in the agreement.
             Anything left empty prints as a blank to fill in by hand.
           </p>
-          <NdaForm data={data} defaultDate={today} onChange={setData} />
+          <div className="flex-1 lg:min-h-0">
+            <NdaChat data={data} onChange={setData} />
+          </div>
         </section>
 
         <section aria-label="Agreement preview" className="space-y-6 px-3 py-8 sm:px-8 lg:overflow-y-auto lg:py-12">

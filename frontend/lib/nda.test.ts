@@ -2,8 +2,9 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { Nodes } from "mdast";
 import { describe, expect, it } from "vitest";
-import { defaultNdaData, escapeMarkdown, fillCoverPage, formatDate, pdfFilename, type NdaData } from "./nda";
-import { parseNdaMarkdown, textContent, type Mark } from "./nda-document";
+import { pdfFilename } from "./documents";
+import { escapeMarkdown, parseMarkdown, textContent, type Mark } from "./markdown";
+import { defaultNdaData, fillCoverPage, formatDate, type NdaData } from "./nda";
 
 const template = readFileSync(
   path.join(__dirname, "..", "..", "templates", "Mutual-NDA-coverpage.md"),
@@ -31,7 +32,7 @@ function marks(markdown: string, kind?: Mark["kind"]): string[] {
     if (node.type === "mark" && (!kind || node.kind === kind)) found.push(textContent(node));
     if ("children" in node) node.children.forEach(visit);
   };
-  visit(parseNdaMarkdown(markdown));
+  visit(parseMarkdown(markdown));
   return found;
 }
 
@@ -41,7 +42,7 @@ function checkedItems(markdown: string): string[] {
     if (node.type === "listItem" && node.checked) found.push(textContent(node).trim());
     if ("children" in node) node.children.forEach(visit);
   };
-  visit(parseNdaMarkdown(markdown));
+  visit(parseMarkdown(markdown));
   return found;
 }
 
@@ -123,7 +124,7 @@ describe("fillCoverPage", () => {
         node.children.forEach((child) => visit(child, inField || isField));
       }
     };
-    visit(parseNdaMarkdown(filled), false);
+    visit(parseMarkdown(filled), false);
     expect([...typesInsideFields]).toEqual(["text"]);
   });
 
@@ -140,7 +141,7 @@ describe("fillCoverPage", () => {
   });
 });
 
-describe("parseNdaMarkdown", () => {
+describe("parseMarkdown", () => {
   it("turns cover-page references in the standard terms into term marks", () => {
     expect(new Set(marks(terms, "term"))).toEqual(
       new Set(["Purpose", "Effective Date", "MNDA Term", "Term of Confidentiality", "Governing Law", "Jurisdiction"]),
@@ -148,7 +149,7 @@ describe("parseNdaMarkdown", () => {
   });
 
   it("keeps unrecognised HTML as literal text", () => {
-    const tree = parseNdaMarkdown('Hi <img src=x onerror="alert(1)"> there');
+    const tree = parseMarkdown('Hi <img src=x onerror="alert(1)"> there');
     expect(JSON.stringify(tree)).not.toContain('"type":"html"');
     expect(textContent(tree)).toBe('Hi <img src=x onerror="alert(1)"> there');
   });
@@ -165,10 +166,10 @@ describe("helpers", () => {
   });
 
   it("names the PDF after the parties", () => {
-    expect(pdfFilename(filledData)).toBe("Mutual-NDA-Acme-Inc-Globex.pdf");
-    expect(pdfFilename(defaultNdaData)).toBe("Mutual-NDA.pdf");
+    expect(pdfFilename("Mutual-NDA", filledData.parties)).toBe("Mutual-NDA-Acme-Inc-Globex.pdf");
+    expect(pdfFilename("Mutual-NDA", defaultNdaData.parties)).toBe("Mutual-NDA.pdf");
     const [p1, p2] = filledData.parties;
-    expect(pdfFilename({ ...filledData, parties: [{ ...p1, company: "Zürich Café AG" }, p2] })).toBe(
+    expect(pdfFilename("Mutual-NDA", [{ ...p1, company: "Zürich Café AG" }, p2])).toBe(
       "Mutual-NDA-Zürich-Café-AG-Globex.pdf",
     );
   });

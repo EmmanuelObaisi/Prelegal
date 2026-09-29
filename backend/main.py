@@ -33,7 +33,7 @@ def health() -> dict[str, str]:
 
 @app.post("/api/chat")
 def chat_turn(request: chat.ChatRequest) -> chat.ChatReply:
-    """Advance the NDA chat by one turn: the assistant's reply and the updated fields."""
+    """Advance the drafting chat by one turn: the assistant's reply and the updated draft."""
     try:
         return chat.chat_turn(request)
     except Exception as error:

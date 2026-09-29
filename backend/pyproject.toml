@@ -5,6 +5,8 @@ description = "Backend API for Prelegal legal document SaaS"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.128.1",
+    "litellm>=1.103.0",
+    "pydantic>=2.12.5",
     "uvicorn[standard]>=0.40.0",
 ]
 

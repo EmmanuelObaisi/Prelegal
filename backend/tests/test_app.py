@@ -2,19 +2,7 @@
 
 import sqlite3
 
-import pytest
-from fastapi.testclient import TestClient
-
 import database
-from main import app
-
-
-@pytest.fixture
-def db_path(tmp_path, monkeypatch):
-    """Point the database at a temporary file."""
-    path = tmp_path / "test.db"
-    monkeypatch.setattr(database, "DB_PATH", path)
-    return path
 
 
 def user_count(path) -> int:
@@ -24,16 +12,14 @@ def user_count(path) -> int:
     return count
 
 
-def test_health(db_path):
-    with TestClient(app) as client:
-        response = client.get("/api/health")
+def test_health(client):
+    response = client.get("/api/health")
     assert response.status_code == 200
     assert response.json() == {"status": "healthy"}
 
 
-def test_startup_creates_users_table(db_path):
-    with TestClient(app):
-        assert user_count(db_path) == 0
+def test_startup_creates_users_table(client, db_path):
+    assert user_count(db_path) == 0
 
 
 def test_init_db_discards_previous_data(db_path):

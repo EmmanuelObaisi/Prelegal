@@ -8,7 +8,7 @@ The available documents are covered in the catalog.json file in the project root
 
 @catalog.json
 
-The current implementation is the V1 foundation (PL-4): a fake sign-in screen in front of the Mutual NDA creator, served by FastAPI in Docker.
+The current implementation (PL-5): a fake sign-in screen in front of the Mutual NDA creator, where an AI chat fills in the NDA fields, served by FastAPI in Docker.
 
 ## Development process
 
@@ -30,7 +30,7 @@ The entire project should be packaged into a Docker container.
 The backend should be in backend/ and be a uv project, using FastAPI.  
 The frontend should be in frontend/  
 The database should use SQLLite and be created from scratch each time the Docker container is brought up, allowing for a users table with sign up and sign in.  
-Consider statically building the frontend and serving it via FastAPI, if that will work.  
+The frontend is statically exported (`output: "export"`) and served by FastAPI.  
 There should be scripts in scripts/ for:  
 ```bash
 # Mac
@@ -56,16 +56,32 @@ Backend available at http://localhost:8000
 
 ## Implementation Status
 
-### Completed (PL-4)
-- Docker multi-stage build (Node frontend + Python backend)
-- FastAPI backend with SQLite `users` table, recreated fresh on every startup
-- Next.js static export served by FastAPI at localhost:8000
-- Fake sign-in screen (no authentication) in front of the Mutual NDA creator
-- Start/stop scripts for Mac, Linux, Windows
+### Completed
+- **PL-2**: Common Paper templates in `templates/` and `catalog.json`.
+- **PL-3**: Mutual NDA creator (manual form, live preview, PDF download via `@react-pdf/renderer`).
+- **PL-4**: V1 foundation.
+  - Docker multi-stage build: Node stage builds the static frontend, Python stage runs FastAPI via uv.
+  - Backend: `GET /api/health` only; `backend/database.py` deletes and recreates `backend/prelegal.db` (stdlib `sqlite3`, `users` table: id, email, created_at) on every startup.
+  - Frontend: `SignInGate` shows a fake sign-in screen (any email/password, client state only, reload signs out) in front of the Mutual NDA creator.
+  - Start/stop scripts for Mac, Linux, Windows (`docker compose up --build -d` / `down`).
+- **PL-5**: AI chat replaces the manual NDA form (still Mutual NDA only).
+  - Backend: `backend/chat.py` holds the Pydantic models (camelCase, mirroring `NdaData` in `frontend/lib/nda.ts`), system prompt and LiteLLM structured-output call. Stateless: each request carries the full history and current fields.
+  - Frontend: `NdaChat` (static greeting, no LLM call until the user sends) calls `/api/chat` via `lib/chat.ts` and replaces the `NdaData` state with the returned fields.
+  - Model output is normalized to plain ASCII spaces/hyphens (gpt-oss emits U+202F / U+2011, which break dates).
+
+### Not yet implemented
+Other document types, real authentication and document persistence (planned for later tickets).
 
 ### Current API Endpoints
 - `GET /api/health` - Health check
+- `POST /api/chat` - `{messages, data}` -> `{reply, data}`; 502 if the LLM call fails
+
+### Notes
+- The frontend reads `templates/*.md` at build time, so the Docker frontend stage copies `templates/`.
+- Next.js is v16 with breaking changes: read `frontend/AGENTS.md` and `node_modules/next/dist/docs/` before frontend work.
+- Adding an NDA field means updating both `frontend/lib/nda.ts` and `backend/chat.py` (models and prompt).
+- The chat uses same-origin `/api/chat`, so it only works when FastAPI serves the built frontend (Docker, or `npm run build` then uvicorn), not under `next dev`.
 
 ### Tests
 - Backend: `cd backend && uv run pytest`
-- Frontend: `cd frontend && npm test`
+- Frontend: `cd frontend && npm test` (Vitest; component tests use jsdom + Testing Library)

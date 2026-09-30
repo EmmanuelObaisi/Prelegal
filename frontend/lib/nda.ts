@@ -1,18 +1,11 @@
 /**
  * Fills the Common Paper Mutual NDA Cover Page template with the user's answers.
  *
- * The template's `[bracketed]` placeholders are swapped for inline marker tags:
- * `<span class="nda-field">` around a filled value, or `<span class="nda-blank">`
- * around a hint when the user left the answer empty. `parseNdaMarkdown` turns
- * those markers into nodes the screen and PDF renderers style as filled-in blanks.
+ * The template's `[bracketed]` placeholders are swapped for `field` markers,
+ * which `parseMarkdown` turns into nodes the renderers style as filled-in blanks.
  */
-
-export interface Party {
-  name: string;
-  title: string;
-  company: string;
-  noticeAddress: string;
-}
+import type { Party } from "@/lib/documents";
+import { escapeCell, field } from "@/lib/markdown";
 
 export interface NdaData {
   purpose: string;
@@ -45,31 +38,6 @@ export const defaultNdaData: NdaData = {
   modifications: "",
   parties: [emptyParty, emptyParty],
 };
-
-/** Backslash-escapes every ASCII punctuation character so user text is never read as markdown or HTML. */
-export function escapeMarkdown(text: string): string {
-  return text.replace(/[!-/:-@[-`{-~]/g, "\\$&");
-}
-
-/** Escapes text for an inline position; line breaks become markdown hard breaks. */
-function escapeInline(text: string): string {
-  return text
-    .trim()
-    .split(/\s*\n\s*/)
-    .map(escapeMarkdown)
-    .join("\\\n");
-}
-
-/** Escapes text for a table cell, where line breaks are not allowed. */
-function escapeCell(text: string): string {
-  return escapeMarkdown(text.trim().split(/\s*\n\s*/).join(", "));
-}
-
-function field(value: string, hint: string, escape = escapeInline): string {
-  return value.trim()
-    ? `<span class="nda-field">${escape(value)}</span>`
-    : `<span class="nda-blank">${escapeMarkdown(hint)}</span>`;
-}
 
 export function formatYears(years: string): string {
   const n = Number(years);
@@ -146,12 +114,4 @@ export function fillCoverPage(template: string, data: NdaData): string {
     ["| Company | | |", row("Company", "company")],
     [`| ${notice} | | |`, row(notice, "noticeAddress")],
   ]);
-}
-
-/** A download filename such as `Mutual-NDA-Acme-Globex.pdf`. */
-export function pdfFilename(data: NdaData): string {
-  const names = data.parties
-    .map((party) => party.company.trim().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, ""))
-    .filter(Boolean);
-  return ["Mutual-NDA", ...names].join("-") + ".pdf";
 }

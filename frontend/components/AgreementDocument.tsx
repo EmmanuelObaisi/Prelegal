@@ -1,9 +1,9 @@
 import type { List, ListItem, Nodes, Root, Table } from "mdast";
 import type { ReactNode } from "react";
-import type { Mark } from "@/lib/nda-document";
+import type { Mark } from "@/lib/markdown";
 
 /** Renders a parsed NDA tree as a sheet of paper. */
-export default function NdaDocument({ tree, label }: { tree: Root; label: string }) {
+export default function AgreementDocument({ tree, label }: { tree: Root; label: string }) {
   return (
     <article
       aria-label={label}

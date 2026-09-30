@@ -1,36 +1,39 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import NdaBuilder from "@/components/NdaBuilder";
+import DocumentBuilder from "@/components/DocumentBuilder";
 import SignInGate from "@/components/SignInGate";
+import type { DocumentDef } from "@/lib/documents";
 
 /**
- * The Common Paper templates live at the repository root, one level above this
- * app, so the app must be built from a full checkout of the repository.
+ * documents.json and the Common Paper templates live at the repository root,
+ * one level above this app, so the app must be built from a full checkout.
  */
-const TEMPLATES_DIR = path.join(process.cwd(), "..", "templates");
+const ROOT_DIR = path.join(process.cwd(), "..");
 
-async function readTemplate(filename: string): Promise<string> {
-  const file = path.join(TEMPLATES_DIR, filename);
+async function readRootFile(relativePath: string): Promise<string> {
+  const file = path.join(ROOT_DIR, relativePath);
   try {
     return await readFile(file, "utf8");
   } catch (error) {
     throw new Error(
-      `Could not read the NDA template at ${file}. Build the frontend from a full checkout of the repository, ` +
-        "where templates/ sits next to frontend/.",
+      `Could not read ${file}. Build the frontend from a full checkout of the repository, ` +
+        "where documents.json and templates/ sit next to frontend/.",
       { cause: error },
     );
   }
 }
 
 export default async function Home() {
-  const [coverPageTemplate, standardTerms] = await Promise.all([
-    readTemplate("Mutual-NDA-coverpage.md"),
-    readTemplate("Mutual-NDA.md"),
+  const definitions: DocumentDef[] = JSON.parse(await readRootFile("documents.json"));
+  const [ndaCoverPage, ...standardTerms] = await Promise.all([
+    readRootFile("templates/Mutual-NDA-coverpage.md"),
+    ...definitions.map((doc) => readRootFile(`templates/${doc.file}`)),
   ]);
+  const documents = definitions.map((doc, i) => ({ ...doc, standardTerms: standardTerms[i] }));
 
   return (
     <SignInGate>
-      <NdaBuilder coverPageTemplate={coverPageTemplate} standardTerms={standardTerms} />
+      <DocumentBuilder documents={documents} ndaCoverPage={ndaCoverPage} />
     </SignInGate>
   );
 }

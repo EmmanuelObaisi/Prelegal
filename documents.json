@@ -1,0 +1,183 @@
+[
+  {
+    "id": "mutual-nda",
+    "name": "Mutual Non-Disclosure Agreement",
+    "file": "Mutual-NDA.md",
+    "slug": "Mutual-NDA",
+    "parties": ["Party 1", "Party 2"],
+    "fields": []
+  },
+  {
+    "id": "ai-addendum",
+    "name": "AI Addendum",
+    "file": "AI-Addendum.md",
+    "slug": "AI-Addendum",
+    "parties": ["Provider", "Customer"],
+    "fields": [
+      { "key": "agreement", "label": "Agreement", "hint": "The software or cloud services agreement this addendum supplements" },
+      { "key": "trainingData", "label": "Training Data", "hint": "Customer data Provider may use to train models, or none" },
+      { "key": "trainingPurposes", "label": "Training Purposes", "hint": "What Provider may train models for" },
+      { "key": "trainingRestrictions", "label": "Training Restrictions", "hint": "Limits on training, or none" },
+      { "key": "improvementRestrictions", "label": "Improvement Restrictions", "hint": "Limits on using data to improve the AI system, or none" }
+    ]
+  },
+  {
+    "id": "baa",
+    "name": "Business Associate Agreement",
+    "file": "BAA.md",
+    "slug": "BAA",
+    "parties": ["Provider", "Company"],
+    "fields": [
+      { "key": "agreement", "label": "Agreement", "hint": "The underlying services agreement" },
+      { "key": "baaEffectiveDate", "label": "BAA Effective Date", "hint": "Date the BAA starts" },
+      { "key": "breachNotificationPeriod", "label": "Breach Notification Period", "hint": "e.g. 5 business days" },
+      { "key": "limitations", "label": "Limitations", "hint": "Limits on subcontracting or offshore use of PHI, or none" }
+    ]
+  },
+  {
+    "id": "csa",
+    "name": "Cloud Service Agreement",
+    "file": "CSA.md",
+    "slug": "CSA",
+    "parties": ["Provider", "Customer"],
+    "fields": [
+      { "key": "cloudService", "label": "Cloud Service", "hint": "The product being sold" },
+      { "key": "effectiveDate", "label": "Effective Date", "hint": "Date the agreement starts" },
+      { "key": "orderDate", "label": "Order Date", "hint": "Date of the Order Form" },
+      { "key": "subscriptionPeriod", "label": "Subscription Period", "hint": "e.g. 12 months" },
+      { "key": "fees", "label": "Fees", "hint": "Subscription fees and payment terms" },
+      { "key": "technicalSupport", "label": "Technical Support", "hint": "Support included, or none" },
+      { "key": "nonRenewalNoticeDate", "label": "Non-Renewal Notice Date", "hint": "e.g. 30 days before the period ends" },
+      { "key": "generalCapAmount", "label": "General Cap Amount", "hint": "e.g. fees paid in the prior 12 months" },
+      { "key": "governingLaw", "label": "Governing Law", "hint": "State" },
+      { "key": "chosenCourts", "label": "Chosen Courts", "hint": "City or county and state" }
+    ]
+  },
+  {
+    "id": "design-partner-agreement",
+    "name": "Design Partner Agreement",
+    "file": "design-partner-agreement.md",
+    "slug": "Design-Partner-Agreement",
+    "parties": ["Provider", "Partner"],
+    "fields": [
+      { "key": "product", "label": "Product", "hint": "The product in development" },
+      { "key": "program", "label": "Program", "hint": "What the design partner program involves" },
+      { "key": "effectiveDate", "label": "Effective Date", "hint": "Date the agreement starts" },
+      { "key": "term", "label": "Term", "hint": "e.g. 6 months" },
+      { "key": "fees", "label": "Fees", "hint": "Fees Partner pays, or none" },
+      { "key": "governingLaw", "label": "Governing Law", "hint": "State" },
+      { "key": "chosenCourts", "label": "Chosen Courts", "hint": "City or county and state" }
+    ]
+  },
+  {
+    "id": "dpa",
+    "name": "Data Processing Agreement",
+    "file": "DPA.md",
+    "slug": "DPA",
+    "parties": ["Provider", "Customer"],
+    "fields": [
+      { "key": "agreement", "label": "Agreement", "hint": "The services agreement this DPA supplements" },
+      { "key": "categoriesOfDataSubjects", "label": "Categories of Data Subjects", "hint": "e.g. Customer's employees and end users" },
+      { "key": "categoriesOfPersonalData", "label": "Categories of Personal Data", "hint": "e.g. names, email addresses" },
+      { "key": "specialCategoryData", "label": "Special Category Data", "hint": "Any sensitive data, or none" },
+      { "key": "specialCategoryDataRestrictions", "label": "Special Category Data Restrictions or Safeguards", "hint": "Safeguards for sensitive data, or none" },
+      { "key": "natureAndPurposeOfProcessing", "label": "Nature and Purpose of Processing", "hint": "Why and how the data is processed" },
+      { "key": "durationOfProcessing", "label": "Duration of Processing", "hint": "e.g. for the term of the Agreement" },
+      { "key": "frequencyOfTransfer", "label": "Frequency of Transfer", "hint": "e.g. continuous" },
+      { "key": "approvedSubprocessors", "label": "Approved Subprocessors", "hint": "Subprocessors and their locations" },
+      { "key": "governingMemberState", "label": "Governing Member State", "hint": "EU member state, e.g. Ireland" },
+      { "key": "securityPolicy", "label": "Security Policy", "hint": "e.g. SOC 2 Type II" },
+      { "key": "providerSecurityContact", "label": "Provider Security Contact", "hint": "Email address" }
+    ]
+  },
+  {
+    "id": "partnership-agreement",
+    "name": "Partnership Agreement",
+    "file": "Partnership-Agreement.md",
+    "slug": "Partnership-Agreement",
+    "parties": ["Company", "Partner"],
+    "fields": [
+      { "key": "effectiveDate", "label": "Effective Date", "hint": "Date the agreement starts" },
+      { "key": "endDate", "label": "End Date", "hint": "Date the agreement ends" },
+      { "key": "obligations", "label": "Obligations", "hint": "What each party will do" },
+      { "key": "territory", "label": "Territory", "hint": "Where the partnership applies" },
+      { "key": "paymentSchedule", "label": "Payment Schedule", "hint": "Amounts and when they are paid" },
+      { "key": "paymentProcess", "label": "Payment Process", "hint": "How payments are made" },
+      { "key": "generalCapAmount", "label": "General Cap Amount", "hint": "Liability cap" },
+      { "key": "governingLaw", "label": "Governing Law", "hint": "State" },
+      { "key": "chosenCourts", "label": "Chosen Courts", "hint": "City or county and state" }
+    ]
+  },
+  {
+    "id": "pilot-agreement",
+    "name": "Pilot Agreement",
+    "file": "Pilot-Agreement.md",
+    "slug": "Pilot-Agreement",
+    "parties": ["Provider", "Customer"],
+    "fields": [
+      { "key": "product", "label": "Product", "hint": "The product being trialled" },
+      { "key": "effectiveDate", "label": "Effective Date", "hint": "Date the pilot starts" },
+      { "key": "pilotPeriod", "label": "Pilot Period", "hint": "e.g. 30 days" },
+      { "key": "fees", "label": "Fees", "hint": "Pilot fees, or none" },
+      { "key": "generalCapAmount", "label": "General Cap Amount", "hint": "Liability cap" },
+      { "key": "governingLaw", "label": "Governing Law", "hint": "State" },
+      { "key": "chosenCourts", "label": "Chosen Courts", "hint": "City or county and state" }
+    ]
+  },
+  {
+    "id": "psa",
+    "name": "Professional Services Agreement",
+    "file": "psa.md",
+    "slug": "PSA",
+    "parties": ["Provider", "Customer"],
+    "fields": [
+      { "key": "effectiveDate", "label": "Effective Date", "hint": "Date the agreement starts" },
+      { "key": "deliverables", "label": "Deliverables", "hint": "What Provider will deliver" },
+      { "key": "fees", "label": "Fees", "hint": "Amount and basis, e.g. fixed or hourly" },
+      { "key": "paymentPeriod", "label": "Payment Period", "hint": "e.g. 30 days from invoice" },
+      { "key": "sowTerm", "label": "SOW Term", "hint": "How long the Statement of Work runs" },
+      { "key": "customerObligations", "label": "Customer Obligations", "hint": "What Customer must provide, or none" },
+      { "key": "timeOfAssignment", "label": "Time of Assignment", "hint": "e.g. on payment of the fees" },
+      { "key": "generalCapAmount", "label": "General Cap Amount", "hint": "Liability cap" },
+      { "key": "governingLaw", "label": "Governing Law", "hint": "State" },
+      { "key": "chosenCourts", "label": "Chosen Courts", "hint": "City or county and state" }
+    ]
+  },
+  {
+    "id": "sla",
+    "name": "Service Level Agreement",
+    "file": "sla.md",
+    "slug": "SLA",
+    "parties": ["Provider", "Customer"],
+    "fields": [
+      { "key": "subscriptionPeriod", "label": "Subscription Period", "hint": "e.g. 12 months" },
+      { "key": "targetUptime", "label": "Target Uptime", "hint": "e.g. 99.9%" },
+      { "key": "uptimeCredit", "label": "Uptime Credit", "hint": "Credit when uptime is missed" },
+      { "key": "targetResponseTime", "label": "Target Response Time", "hint": "e.g. 4 business hours" },
+      { "key": "responseTimeCredit", "label": "Response Time Credit", "hint": "Credit when response time is missed" },
+      { "key": "supportChannel", "label": "Support Channel", "hint": "e.g. support@provider.com" },
+      { "key": "scheduledDowntime", "label": "Scheduled Downtime", "hint": "Planned maintenance windows" }
+    ]
+  },
+  {
+    "id": "software-license-agreement",
+    "name": "Software License Agreement",
+    "file": "Software-License-Agreement.md",
+    "slug": "Software-License-Agreement",
+    "parties": ["Provider", "Customer"],
+    "fields": [
+      { "key": "software", "label": "Software", "hint": "The software being licensed" },
+      { "key": "effectiveDate", "label": "Effective Date", "hint": "Date the agreement starts" },
+      { "key": "orderDate", "label": "Order Date", "hint": "Date of the Order Form" },
+      { "key": "subscriptionPeriod", "label": "Subscription Period", "hint": "e.g. 12 months" },
+      { "key": "permittedUses", "label": "Permitted Uses", "hint": "How Customer may use the Software" },
+      { "key": "licenseLimits", "label": "License Limits", "hint": "e.g. number of users or installs" },
+      { "key": "fees", "label": "Fees", "hint": "License fees" },
+      { "key": "paymentProcess", "label": "Payment Process", "hint": "How and when fees are paid" },
+      { "key": "warrantyPeriod", "label": "Warranty Period", "hint": "e.g. 90 days" },
+      { "key": "generalCapAmount", "label": "General Cap Amount", "hint": "Liability cap" },
+      { "key": "governingLaw", "label": "Governing Law", "hint": "State" },
+      { "key": "chosenCourts", "label": "Chosen Courts", "hint": "City or county and state" }
+    ]
+  }
+]

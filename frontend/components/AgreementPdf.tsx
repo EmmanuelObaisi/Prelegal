@@ -1,10 +1,10 @@
 import { Document, Font, Link, Page, pdf, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { List, ListItem, Nodes, Root, Table } from "mdast";
 import type { ReactNode } from "react";
-import type { Mark } from "@/lib/nda-document";
+import type { Mark } from "@/lib/markdown";
 
 /**
- * Renders the same parsed NDA trees as `NdaDocument`, as a vector PDF.
+ * Renders the same parsed agreement trees as `AgreementDocument`, as a vector PDF.
  * Loaded on demand (it pulls in @react-pdf/renderer) when the user downloads.
  */
 
@@ -73,9 +73,15 @@ const BLANK = "________________";
  */
 const NO_HYPHENS = { hyphenationPenalty: 10_000 };
 
-export function NdaPdf({ coverPage, standardTerms }: { coverPage: Root; standardTerms: Root }) {
+interface AgreementPdfProps {
+  title: string;
+  coverPage: Root;
+  standardTerms: Root;
+}
+
+export function AgreementPdf({ title, coverPage, standardTerms }: AgreementPdfProps) {
   return (
-    <Document title="Mutual Non-Disclosure Agreement" creator="Prelegal">
+    <Document title={title} creator="Prelegal">
       <Page size="LETTER" style={s.page}>
         {blocks(coverPage.children)}
       </Page>
@@ -192,9 +198,9 @@ function mark(node: Mark, key: number): ReactNode {
   }
 }
 
-/** Renders the NDA to a PDF and saves it through the browser. */
-export async function downloadNdaPdf(coverPage: Root, standardTerms: Root, filename: string): Promise<void> {
-  const blob = await pdf(<NdaPdf coverPage={coverPage} standardTerms={standardTerms} />).toBlob();
+/** Renders an agreement to a PDF and saves it through the browser. */
+export async function downloadAgreementPdf(props: AgreementPdfProps, filename: string): Promise<void> {
+  const blob = await pdf(<AgreementPdf {...props} />).toBlob();
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;

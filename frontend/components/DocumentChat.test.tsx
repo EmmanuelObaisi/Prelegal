@@ -2,9 +2,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { GREETING } from "@/lib/chat";
-import { defaultNdaData, type NdaData } from "@/lib/nda";
-import NdaChat from "./NdaChat";
+import { emptyDraft, GREETING, type Draft } from "@/lib/chat";
+import DocumentChat from "./DocumentChat";
 
 afterEach(() => {
   cleanup();
@@ -12,7 +11,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-const updated: NdaData = { ...defaultNdaData, governingLaw: "Delaware" };
+const updated: Draft = { ...emptyDraft, documentId: "csa", fields: [{ key: "governingLaw", value: "Delaware" }] };
 
 function stubFetch(response: Partial<Response>) {
   const fetch = vi.fn().mockResolvedValue(response);
@@ -22,11 +21,11 @@ function stubFetch(response: Partial<Response>) {
 
 function renderChat() {
   const onChange = vi.fn();
-  render(<NdaChat data={defaultNdaData} onChange={onChange} />);
+  render(<DocumentChat draft={emptyDraft} onChange={onChange} />);
   return onChange;
 }
 
-describe("NdaChat", () => {
+describe("DocumentChat", () => {
   it("greets the user without calling the assistant", () => {
     const fetch = stubFetch({ ok: true });
     renderChat();
@@ -35,7 +34,7 @@ describe("NdaChat", () => {
   });
 
   it("sends the conversation and fields, then shows the reply and updates the fields", async () => {
-    const fetch = stubFetch({ ok: true, json: async () => ({ reply: "Delaware it is.", data: updated }) });
+    const fetch = stubFetch({ ok: true, json: async () => ({ reply: "Delaware it is.", draft: updated }) });
     const onChange = renderChat();
     const user = userEvent.setup();
 
@@ -53,12 +52,12 @@ describe("NdaChat", () => {
         { role: "assistant", content: GREETING },
         { role: "user", content: "Use Delaware law" },
       ],
-      data: defaultNdaData,
+      draft: emptyDraft,
     });
   });
 
   it("sends on Enter", async () => {
-    const fetch = stubFetch({ ok: true, json: async () => ({ reply: "Noted.", data: updated }) });
+    const fetch = stubFetch({ ok: true, json: async () => ({ reply: "Noted.", draft: updated }) });
     renderChat();
 
     await userEvent.setup().type(screen.getByLabelText("Message"), "Hello{Enter}");

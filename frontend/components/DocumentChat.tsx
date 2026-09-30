@@ -1,20 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
-import { GREETING, sendChat, type ChatMessage } from "@/lib/chat";
-import type { NdaData } from "@/lib/nda";
+import { GREETING, sendChat, type ChatMessage, type Draft } from "@/lib/chat";
 
-interface NdaChatProps {
-  data: NdaData;
-  onChange: (data: NdaData) => void;
+interface DocumentChatProps {
+  draft: Draft;
+  onChange: (draft: Draft) => void;
 }
 
 type ChatStatus = "idle" | "sending" | "failed";
 
-/** Freeform chat with the drafting assistant, which fills in the NDA fields as it goes. */
-export default function NdaChat({ data, onChange }: NdaChatProps) {
+/** Freeform chat with the drafting assistant, which picks the document and fills in its fields as it goes. */
+export default function DocumentChat({ draft, onChange }: DocumentChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([{ role: "assistant", content: GREETING }]);
-  const [draft, setDraft] = useState("");
+  const [input, setInput] = useState("");
   const [status, setStatus] = useState<ChatStatus>("idle");
   const logRef = useRef<HTMLDivElement>(null);
 
@@ -24,22 +23,22 @@ export default function NdaChat({ data, onChange }: NdaChatProps) {
   }, [messages, status]);
 
   async function send() {
-    const text = draft.trim();
+    const text = input.trim();
     if (!text || status === "sending") return;
 
     const conversation: ChatMessage[] = [...messages, { role: "user", content: text }];
     setMessages(conversation);
-    setDraft("");
+    setInput("");
     setStatus("sending");
     try {
-      const { reply, data: updated } = await sendChat(conversation, data);
+      const { reply, draft: updated } = await sendChat(conversation, draft);
       setMessages([...conversation, { role: "assistant", content: reply }]);
       onChange(updated);
       setStatus("idle");
     } catch (error) {
       console.error(error);
       setMessages(messages);
-      setDraft(text);
+      setInput(text);
       setStatus("failed");
     }
   }
@@ -74,14 +73,14 @@ export default function NdaChat({ data, onChange }: NdaChatProps) {
           rows={2}
           aria-label="Message"
           placeholder="Type your answer…"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           className="flex-1 resize-none rounded-[3px] border border-rule bg-paper px-3 py-2 text-[0.9375rem] text-type placeholder:text-muted focus:border-ink"
         />
         <button
           type="submit"
-          disabled={status === "sending" || !draft.trim()}
+          disabled={status === "sending" || !input.trim()}
           className="rounded-[3px] bg-brand-purple px-4 py-2 text-sm font-semibold text-paper hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Send

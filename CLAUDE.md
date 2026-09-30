@@ -68,7 +68,6 @@ Backend available at http://localhost:8000
   - Backend: `backend/chat.py` holds the Pydantic models (camelCase, mirroring `NdaData` in `frontend/lib/nda.ts`), system prompt and LiteLLM structured-output call. Stateless: each request carries the full history and current fields.
   - Frontend: `NdaChat` (static greeting, no LLM call until the user sends) calls `/api/chat` via `lib/chat.ts` and replaces the `NdaData` state with the returned fields.
   - Model output is normalized to plain ASCII spaces/hyphens (gpt-oss emits U+202F / U+2011, which break dates).
-
 - **PL-6**: All catalog documents (11: Mutual NDA plus 10 standard-terms-only templates).
   - `documents.json` (repo root) is the single source of document ids, names, template files, PDF slugs, party roles and Key Terms fields; read by `backend/documents.py` and `frontend/app/page.tsx`. Descriptions come from `catalog.json`.
   - One chat request/response shape for every document: `draft = {documentId, nda, parties, fields[{key, value}]}`. `documentId` is a `Literal` of the ids or null; one system prompt lists every document and field, and handles unsupported requests by suggesting the closest document.
@@ -79,16 +78,19 @@ Backend available at http://localhost:8000
 ### Not yet implemented
 Real authentication and document persistence (planned for later tickets).
 
+### Known limitations
+- The model sometimes leaves a value the user mentioned unfilled, and clears the previous document's fields when the user switches documents (prompt quality, not schema).
+
 ### Current API Endpoints
 - `GET /api/health` - Health check
 - `POST /api/chat` - `{messages, draft}` -> `{reply, draft}`; 502 if the LLM call fails
 
 ### Notes
-- The frontend reads `templates/*.md` at build time, so the Docker frontend stage copies `templates/`.
+- The frontend reads `documents.json` and `templates/*.md` from the repo root at build time (and in tests), so the Docker frontend stage copies both.
 - Next.js is v16 with breaking changes: read `frontend/AGENTS.md` and `node_modules/next/dist/docs/` before frontend work.
-- Adding an NDA field means updating `frontend/lib/nda.ts`, `frontend/lib/chat.ts` and `backend/chat.py` (models and prompt).
-- Adding a document or a Key Terms field only needs `documents.json` (and the template in `templates/`).
-- The backend reads `documents.json` and `catalog.json` from the repo root, so the Dockerfile copies both into each stage that needs them.
+- Adding an NDA field means updating `frontend/lib/nda.ts` (type, default, `fillCoverPage`) and `backend/chat.py` (`NdaData` and prompt); `NdaTerms` in `lib/chat.ts` follows automatically.
+- Adding a Key Terms field only needs `documents.json`. Adding a document needs `documents.json`, its template in `templates/` and a `catalog.json` entry (the backend takes its description from there).
+- The backend reads `documents.json` and `catalog.json` from the repo root, so the Docker runtime stage copies both.
 - The chat uses same-origin `/api/chat`, so it only works when FastAPI serves the built frontend (Docker, or `npm run build` then uvicorn), not under `next dev`.
 
 ### Tests

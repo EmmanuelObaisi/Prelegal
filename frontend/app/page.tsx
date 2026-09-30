@@ -1,7 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import DocumentBuilder from "@/components/DocumentBuilder";
-import SignInGate from "@/components/SignInGate";
+import App from "@/components/App";
 import type { DocumentDef } from "@/lib/documents";
 
 /**
@@ -31,9 +30,5 @@ export default async function Home() {
   ]);
   const documents = definitions.map((doc, i) => ({ ...doc, standardTerms: standardTerms[i] }));
 
-  return (
-    <SignInGate>
-      <DocumentBuilder documents={documents} ndaCoverPage={ndaCoverPage} />
-    </SignInGate>
-  );
+  return <App documents={documents} ndaCoverPage={ndaCoverPage} />;
 }

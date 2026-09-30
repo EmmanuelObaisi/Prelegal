@@ -80,6 +80,11 @@ prelegal/
 ## API Endpoints
 
 - `GET /api/health` - Health check
+- `POST /api/auth/signup`, `POST /api/auth/signin`, `POST /api/auth/signout`, `GET /api/auth/me` - Accounts (HttpOnly session cookie)
+- `POST /api/chat` - One drafting chat turn; autosaves the draft once a document is chosen
+- `GET /api/documents`, `GET /api/documents/{id}` - The signed-in user's saved drafts
+
+The database is temporary: it is recreated, empty, every time the server starts.
 
 ## License
 

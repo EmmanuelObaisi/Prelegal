@@ -1,18 +1,27 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
-import { GREETING, sendChat, type ChatMessage, type Draft } from "@/lib/chat";
+import { isSignedOut } from "@/lib/auth";
+import { greeting, sendChat, type ChatMessage, type Draft } from "@/lib/chat";
+import type { SavedDocument } from "@/lib/savedDocuments";
 
 interface DocumentChatProps {
   draft: Draft;
   onChange: (draft: Draft) => void;
+  /** A previously saved draft whose conversation this chat carries on. */
+  saved?: SavedDocument;
+  onSignedOut?: () => void;
 }
 
 type ChatStatus = "idle" | "sending" | "failed";
 
-/** Freeform chat with the drafting assistant, which picks the document and fills in its fields as it goes. */
-export default function DocumentChat({ draft, onChange }: DocumentChatProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([{ role: "assistant", content: GREETING }]);
+/**
+ * Freeform chat with the drafting assistant, which picks the document and fills
+ * in its fields as it goes. The backend autosaves each turn under `savedId`.
+ */
+export default function DocumentChat({ draft, onChange, saved, onSignedOut }: DocumentChatProps) {
+  const [messages, setMessages] = useState<ChatMessage[]>(saved?.messages ?? greeting);
+  const [savedId, setSavedId] = useState(saved?.id ?? null);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<ChatStatus>("idle");
   const logRef = useRef<HTMLDivElement>(null);
@@ -31,11 +40,13 @@ export default function DocumentChat({ draft, onChange }: DocumentChatProps) {
     setInput("");
     setStatus("sending");
     try {
-      const { reply, draft: updated } = await sendChat(conversation, draft);
+      const { reply, draft: updated, savedId: newSavedId } = await sendChat(conversation, draft, savedId);
       setMessages([...conversation, { role: "assistant", content: reply }]);
+      setSavedId(newSavedId);
       onChange(updated);
       setStatus("idle");
     } catch (error) {
+      if (isSignedOut(error)) return onSignedOut?.();
       console.error(error);
       setMessages(messages);
       setInput(text);

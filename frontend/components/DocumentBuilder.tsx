@@ -3,10 +3,12 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import DocumentChat from "@/components/DocumentChat";
 import AgreementDocument from "@/components/AgreementDocument";
+import DraftNotice from "@/components/DraftNotice";
 import { emptyDraft, type Draft } from "@/lib/chat";
 import { buildKeyTermsPage, NDA_ID, pdfFilename, type DocumentDef } from "@/lib/documents";
 import { parseMarkdown } from "@/lib/markdown";
 import { fillCoverPage } from "@/lib/nda";
+import type { SavedDocument } from "@/lib/savedDocuments";
 
 /** A document definition with its Standard Terms markdown, read at build time. */
 export interface DocumentWithTerms extends DocumentDef {
@@ -16,12 +18,15 @@ export interface DocumentWithTerms extends DocumentDef {
 interface DocumentBuilderProps {
   documents: DocumentWithTerms[];
   ndaCoverPage: string;
+  /** A previously saved draft to reopen; a new draft starts empty. */
+  saved?: SavedDocument;
+  onSignedOut?: () => void;
 }
 
 type DownloadState = "idle" | "working" | "failed";
 
-export default function DocumentBuilder({ documents, ndaCoverPage }: DocumentBuilderProps) {
-  const [draft, setDraft] = useState<Draft>(emptyDraft);
+export default function DocumentBuilder({ documents, ndaCoverPage, saved, onSignedOut }: DocumentBuilderProps) {
+  const [draft, setDraft] = useState<Draft>(saved?.draft ?? emptyDraft);
   const [download, setDownload] = useState<DownloadState>("idle");
   const today = useToday();
 
@@ -43,54 +48,54 @@ export default function DocumentBuilder({ documents, ndaCoverPage }: DocumentBui
   }
 
   return (
-    <div className="flex min-h-dvh flex-col lg:h-dvh">
-      <header className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-rule bg-paper px-4 py-3 sm:px-6">
-        <p className="font-serif text-xl font-semibold tracking-tight">Prelegal</p>
-        <p className="text-[0.9375rem] text-muted">{doc?.name ?? "Legal agreement drafting"}</p>
-        {doc && (
-          <div className="ml-auto flex items-center gap-3">
-            <p role="status" className="text-sm text-muted">
-              {download === "failed" && "The PDF couldn’t be created. Try again."}
-            </p>
-            <button
-              type="button"
-              onClick={handleDownload}
-              disabled={download === "working"}
-              className="rounded-[3px] bg-ink px-4 py-2 text-sm font-semibold text-paper hover:bg-[#1b3683] disabled:cursor-wait disabled:opacity-70"
-            >
-              {download === "working" ? "Preparing PDF…" : "Download PDF"}
-            </button>
-          </div>
-        )}
-      </header>
+    <div className="grid flex-1 lg:min-h-0 lg:grid-cols-[minmax(22rem,26rem)_1fr]">
+      <section aria-label="Chat with the assistant" className="flex flex-col border-rule bg-paper px-4 py-6 sm:px-6 lg:min-h-0 lg:border-r">
+        <h1 className="text-lg font-semibold text-navy">{doc?.name ?? "New document"}</h1>
+        <p className="mt-1 mb-4 text-sm leading-relaxed text-muted">
+          Chat with the assistant and your answers appear in <span className="text-ink">blue</span> in the agreement.
+          Anything left empty prints as a blank to fill in by hand.
+        </p>
+        <div className="flex-1 lg:min-h-0">
+          <DocumentChat draft={draft} onChange={setDraft} saved={saved} onSignedOut={onSignedOut} />
+        </div>
+      </section>
 
-      <main className="grid flex-1 lg:min-h-0 lg:grid-cols-[minmax(22rem,26rem)_1fr]">
-        <section aria-label="Chat with the assistant" className="flex flex-col border-rule bg-paper px-4 py-6 sm:px-6 lg:min-h-0 lg:border-r">
-          <p className="mb-4 text-[0.9375rem] leading-relaxed text-muted">
-            Chat with the assistant and your answers appear in <span className="text-ink">blue</span> in the agreement.
-            Anything left empty prints as a blank to fill in by hand.
-          </p>
-          <div className="flex-1 lg:min-h-0">
-            <DocumentChat draft={draft} onChange={setDraft} />
-          </div>
-        </section>
-
-        <section aria-label="Agreement preview" className="space-y-6 px-3 py-8 sm:px-8 lg:overflow-y-auto lg:py-12">
-          {doc && coverPage && terms ? (
-            <>
+      <section aria-label="Agreement preview" className="flex flex-col lg:min-h-0">
+        {doc && coverPage && terms ? (
+          <>
+            <div className="flex flex-wrap items-center gap-3 border-b border-rule bg-paper/70 px-4 py-3 sm:px-8">
+              <p className="text-sm font-medium text-navy">Preview</p>
+              <p role="status" className="ml-auto text-sm text-muted">
+                {download === "failed" && "The PDF couldn’t be created. Try again."}
+              </p>
+              <button
+                type="button"
+                onClick={handleDownload}
+                disabled={download === "working"}
+                className="rounded-md bg-navy px-4 py-2 text-sm font-semibold text-paper shadow-sm hover:bg-navy/90 disabled:cursor-wait disabled:opacity-70"
+              >
+                {download === "working" ? "Preparing PDF…" : "Download PDF"}
+              </button>
+            </div>
+            <div className="space-y-6 px-3 py-8 sm:px-8 lg:flex-1 lg:overflow-y-auto lg:py-10">
+              <DraftNotice />
               <AgreementDocument tree={coverPage} label={doc.id === NDA_ID ? "Cover page" : "Key terms"} />
               <AgreementDocument tree={terms} label="Standard terms" />
-              <p className="mx-auto max-w-[46rem] text-center text-xs text-type/80">
+              <p className="mx-auto max-w-[46rem] text-center text-xs text-muted">
                 Based on the Common Paper {doc.name}, used under CC BY 4.0.
               </p>
-            </>
-          ) : (
-            <p className="mx-auto max-w-[32rem] pt-16 text-center text-[0.9375rem] leading-relaxed text-muted">
-              Tell the assistant what you need. Your agreement will appear here as soon as you’ve chosen one.
+            </div>
+          </>
+        ) : (
+          <div className="mx-auto max-w-[32rem] px-4 pt-20 pb-16 text-center">
+            <p className="font-serif text-2xl font-semibold text-navy">Your agreement will appear here</p>
+            <p className="mt-3 text-[0.9375rem] leading-relaxed text-muted">
+              Tell the assistant what you need, such as an NDA, a cloud service agreement or a pilot agreement. The
+              draft fills in as you chat and is saved to My documents.
             </p>
-          )}
-        </section>
-      </main>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

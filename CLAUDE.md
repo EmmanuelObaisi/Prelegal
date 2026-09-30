@@ -8,7 +8,7 @@ The available documents are covered in the catalog.json file in the project root
 
 @catalog.json
 
-The current implementation (PL-6): a fake sign-in screen in front of a document creator, where an AI chat picks one of 11 supported documents and fills in its fields, served by FastAPI in Docker.
+The current implementation (PL-7): real accounts (sign up / sign in) in front of a document creator, where an AI chat picks one of 11 supported documents and fills in its fields; every draft is autosaved and listed under My documents. Served by FastAPI in Docker.
 
 ## Development process
 
@@ -75,19 +75,26 @@ Backend available at http://localhost:8000
   - `lib/markdown.ts` writes the `field`/`blank` markers and `parseMarkdown` reads them; it also treats every `*_link` and `header_2`/`header_3` span as a term, unwraps `<span id>` anchors, and disables indented code (DPA clauses were being read as code blocks).
   - Generic components: `DocumentBuilder`, `DocumentChat`, `AgreementDocument` (screen) and `AgreementPdf` (PDF, named `<slug>-<companies>.pdf`). `lib/nda.ts` now holds only the NDA cover page.
 
-### Not yet implemented
-**PL-7** (next, the last planned ticket): support multiple users and final polish.
-- Real sign up and sign in screens (replacing the fake `SignInGate`) so users can register and come back.
-- Store each user's generated documents and let them view prior ones. Data stays temporary: the database still resets on every server start.
-- Professional SaaS polish across all screens.
-- A disclaimer that documents are drafts subject to legal review.
+- **PL-7**: Multiple users, saved documents, polish and a draft disclaimer.
+  - `backend/auth.py`: pwdlib Argon2 password hashes; an opaque token in the `sessions` table is set as an HttpOnly SameSite=Lax `session` cookie. `require_user` is the FastAPI dependency behind every protected route (401 when signed out). Emails are trimmed and lowercased by `Credentials`.
+  - `backend/saved_documents.py`: `saved_documents` table (draft and transcript as JSON). `POST /api/chat` autosaves after each successful turn once `documentId` is set; the client round-trips `savedId` so a conversation updates one row. Every query filters by `user_id`, so another user's id is a 404 (or a new row on save).
+  - `chat.ChatReply` stays the LLM's structured-output schema; the route returns `SavedChatReply` (adds `savedId`) so the model is never asked for an id.
+  - `database.connect()` is the one way to open the DB (rows by name, commit on success, always closed).
+  - Frontend: `App` restores the session via `/api/auth/me`, then shows `AuthScreen`, `DocumentsList` (My documents) or `DocumentBuilder` under `AppHeader`. A reopened draft gets a fresh builder via a React `key`; a 401 anywhere (e.g. after a server restart wipes sessions) returns to sign-in. `lib/api.ts` wraps same-origin fetches and raises `ApiError(status, detail)`.
+  - `DraftNotice` shows above every preview; the same wording (`DRAFT_NOTICE`) is a fixed footer on every PDF page.
 
 ### Known limitations
 - The model sometimes leaves a value the user mentioned unfilled, and clears the previous document's fields when the user switches documents (prompt quality, not schema).
 
 ### Current API Endpoints
 - `GET /api/health` - Health check
-- `POST /api/chat` - `{messages, draft}` -> `{reply, draft}`; 502 if the LLM call fails
+- `POST /api/auth/signup` - `{email, password}` -> `{id, email}` (201) and the session cookie; 409 if the email is taken, 422 for an invalid email or a password under 8 characters
+- `POST /api/auth/signin` - `{email, password}` -> `{id, email}` and the session cookie; 401 if wrong
+- `POST /api/auth/signout` - deletes the session and cookie (204)
+- `GET /api/auth/me` - `{id, email}`; 401 when signed out
+- `POST /api/chat` (signed in) - `{messages, draft, savedId}` -> `{reply, draft, savedId}`; 502 if the LLM call fails
+- `GET /api/documents` (signed in) - `[{id, documentId, documentName, companies, updatedAt}]`, most recent first
+- `GET /api/documents/{id}` (signed in) - `{id, draft, messages}`; 404 if missing or not the user's
 
 ### Notes
 - The frontend reads `documents.json` and `templates/*.md` from the repo root at build time (and in tests), so the Docker frontend stage copies both.
@@ -95,7 +102,9 @@ Backend available at http://localhost:8000
 - Adding an NDA field means updating `frontend/lib/nda.ts` (type, default, `fillCoverPage`) and `backend/chat.py` (`NdaData` and prompt); `NdaTerms` in `lib/chat.ts` follows automatically.
 - Adding a Key Terms field only needs `documents.json`. Adding a document needs `documents.json`, its template in `templates/` and a `catalog.json` entry (the backend takes its description from there).
 - The backend reads `documents.json` and `catalog.json` from the repo root, so the Docker runtime stage copies both.
-- The chat uses same-origin `/api/chat`, so it only works when FastAPI serves the built frontend (Docker, or `npm run build` then uvicorn), not under `next dev`.
+- The API is same-origin (`/api/*`, cookie auth), so the app only works when FastAPI serves the built frontend (Docker, or `npm run build` then uvicorn), not under `next dev`.
+- Restarting the server wipes users, sessions and saved documents by design; a browser holding an old cookie is sent back to sign-in.
+- Backend tests: `client` is signed out; `signed_in_client` has signed up `CREDENTIALS` from `conftest.py` and carries the cookie.
 
 ### Tests
 - Backend: `cd backend && uv run pytest`

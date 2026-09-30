@@ -114,17 +114,24 @@ class Message(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    """The conversation so far and the current draft."""
+    """The conversation so far, the current draft and, once saved, the draft's saved id."""
 
     messages: list[Message]
     draft: Draft
+    savedId: int | None = None
 
 
 class ChatReply(BaseModel):
-    """The assistant's reply and the updated draft."""
+    """The assistant's reply and the updated draft. Also the LLM's structured-output schema."""
 
     reply: str
     draft: Draft
+
+
+class SavedChatReply(ChatReply):
+    """The reply sent to the browser: the chat reply plus the id the draft is saved under."""
+
+    savedId: int | None
 
 
 def build_messages(request: ChatRequest) -> list[dict[str, str]]:

@@ -1,10 +1,12 @@
-"""Shared fixtures: a temporary database and a test client that uses it."""
+"""Shared fixtures: a temporary database, a test client that uses it, and a signed-in client."""
 
 import pytest
 from fastapi.testclient import TestClient
 
 import database
 from main import app
+
+CREDENTIALS = {"email": "ada@example.com", "password": "correct horse"}
 
 
 @pytest.fixture
@@ -20,3 +22,10 @@ def client(db_path):
     """A running app backed by the temporary database."""
     with TestClient(app) as client:
         yield client
+
+
+@pytest.fixture
+def signed_in_client(client):
+    """The client after signing up; its cookie jar carries the session."""
+    assert client.post("/api/auth/signup", json=CREDENTIALS).status_code == 201
+    return client

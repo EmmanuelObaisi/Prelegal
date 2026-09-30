@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { emptyDraft, type Draft } from "@/lib/chat";
@@ -23,7 +23,7 @@ afterEach(() => {
 const acme = { name: "Ada Lovelace", title: "CEO", company: "Acme Cloud", noticeAddress: "ada@acme.test" };
 
 async function chooseDocument(draft: Draft) {
-  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ reply: "Sure.", draft }) }));
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ reply: "Sure.", draft, savedId: 1 }) }));
   render(<DocumentBuilder documents={documents} ndaCoverPage={read("templates/Mutual-NDA-coverpage.md")} />);
   await userEvent.setup().type(screen.getByLabelText("Message"), "Hello{Enter}");
   await screen.findByText("Sure.");
@@ -49,6 +49,22 @@ describe("DocumentBuilder", () => {
     expect(screen.getByText("Acme Cloud")).toBeTruthy();
     expect(screen.getByLabelText("Standard terms").textContent).toContain("Target Uptime");
     expect(screen.getByRole("button", { name: "Download PDF" })).toBeTruthy();
+    expect(screen.getByRole("note").textContent).toContain("subject to review by a qualified lawyer");
+  });
+
+  it("reopens a saved draft with its conversation, without calling the assistant", () => {
+    const fetch = vi.fn();
+    vi.stubGlobal("fetch", fetch);
+    const draft = { ...emptyDraft, documentId: "pilot-agreement", parties: [acme, emptyDraft.parties[1]] as Draft["parties"] };
+    const messages = [{ role: "user" as const, content: "A pilot with Acme Cloud" }];
+
+    render(<DocumentBuilder documents={documents} ndaCoverPage="" saved={{ id: 4, draft, messages }} />);
+
+    const chat = within(screen.getByLabelText("Chat with the assistant"));
+    expect(chat.getByRole("heading", { name: "Pilot Agreement" })).toBeTruthy();
+    expect(screen.getByText("A pilot with Acme Cloud")).toBeTruthy();
+    expect(screen.getByLabelText("Key terms").textContent).toContain("Acme Cloud");
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it("fills the Mutual NDA cover page, including the shared parties", async () => {

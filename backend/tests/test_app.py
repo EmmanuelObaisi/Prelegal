@@ -25,7 +25,7 @@ def test_startup_creates_users_table(client, db_path):
 def test_init_db_discards_previous_data(db_path):
     database.init_db()
     with sqlite3.connect(db_path) as conn:
-        conn.execute("INSERT INTO users (email) VALUES ('a@example.com')")
+        conn.execute("INSERT INTO users (email, password_hash) VALUES ('a@example.com', 'x')")
     conn.close()
     assert user_count(db_path) == 1
 

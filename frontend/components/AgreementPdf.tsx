@@ -1,6 +1,7 @@
 import { Document, Font, Link, Page, pdf, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { List, ListItem, Nodes, Root, Table } from "mdast";
 import type { ReactNode } from "react";
+import { DRAFT_NOTICE } from "@/components/DraftNotice";
 import type { Mark } from "@/lib/markdown";
 
 /**
@@ -62,6 +63,7 @@ const s = StyleSheet.create({
   link: { color: TYPE },
   field: { color: INK },
   hint: { fontFamily: "Helvetica", fontSize: 8, color: MUTED },
+  footer: { position: "absolute", bottom: 28, left: 64, right: 64, fontFamily: "Helvetica", fontSize: 7.5, color: MUTED, textAlign: "center" },
 });
 
 const BLANK = "________________";
@@ -84,11 +86,22 @@ export function AgreementPdf({ title, coverPage, standardTerms }: AgreementPdfPr
     <Document title={title} creator="Prelegal">
       <Page size="LETTER" style={s.page}>
         {blocks(coverPage.children)}
+        <Footer />
       </Page>
       <Page size="LETTER" style={s.page}>
         {blocks(standardTerms.children)}
+        <Footer />
       </Page>
     </Document>
+  );
+}
+
+/** The draft notice, repeated at the foot of every page. */
+function Footer() {
+  return (
+    <Text fixed style={s.footer}>
+      {DRAFT_NOTICE}
+    </Text>
   );
 }
 

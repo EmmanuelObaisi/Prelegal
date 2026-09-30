@@ -76,25 +76,34 @@ def test_draft_rejects_unknown_documents():
         chat.Draft.model_validate({**DRAFT, "documentId": "employment-agreement"})
 
 
-def test_chat_route_returns_reply_and_camel_case_draft(client, monkeypatch):
+def test_chat_reply_schema_for_the_llm_has_no_saved_id():
+    assert "savedId" not in chat.ChatReply.model_json_schema()["properties"]
+
+
+def test_chat_route_returns_reply_camel_case_draft_and_saved_id(signed_in_client, monkeypatch):
     updated = {**DRAFT, "documentId": "csa", "fields": [{"key": "governingLaw", "value": "Delaware"}]}
     monkeypatch.setattr(chat, "chat_turn", lambda request: chat.ChatReply(reply="Got it.", draft=updated))
 
-    response = client.post("/api/chat", json={"messages": MESSAGES, "draft": DRAFT})
+    response = signed_in_client.post("/api/chat", json={"messages": MESSAGES, "draft": DRAFT})
 
     assert response.status_code == 200
-    assert response.json() == {"reply": "Got it.", "draft": updated}
+    assert response.json() == {"reply": "Got it.", "draft": updated, "savedId": 1}
 
 
-def test_chat_route_rejects_malformed_request(client):
-    response = client.post("/api/chat", json={"messages": [{"role": "system", "content": "x"}], "draft": DRAFT})
-    assert response.status_code == 422
+def test_chat_route_requires_sign_in(client):
+    response = client.post("/api/chat", json={"messages": MESSAGES, "draft": DRAFT})
+    assert response.status_code == 401
 
 
-def test_chat_route_reports_llm_failure_as_bad_gateway(client, monkeypatch):
+def test_chat_route_rejects_malformed_request(signed_in_client):
+    body = {"messages": [{"role": "system", "content": "x"}], "draft": DRAFT}
+    assert signed_in_client.post("/api/chat", json=body).status_code == 422
+
+
+def test_chat_route_reports_llm_failure_as_bad_gateway(signed_in_client, monkeypatch):
     monkeypatch.setattr(chat, "completion", fake_completion("not json"))
 
-    response = client.post("/api/chat", json={"messages": MESSAGES, "draft": DRAFT})
+    response = signed_in_client.post("/api/chat", json={"messages": MESSAGES, "draft": DRAFT})
 
     assert response.status_code == 502
     assert response.json() == {"detail": "The assistant is unavailable. Please try again."}

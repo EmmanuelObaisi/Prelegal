@@ -12,6 +12,7 @@ DESCRIPTIONS = {
     for entry in json.loads((ROOT / "catalog.json").read_text(encoding="utf-8"))
 }
 DOCUMENT_IDS = tuple(document["id"] for document in DOCUMENTS)
+NAMES = {document["id"]: document["name"] for document in DOCUMENTS}
 
 
 def catalog_text() -> str:

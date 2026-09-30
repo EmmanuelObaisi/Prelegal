@@ -76,7 +76,11 @@ Backend available at http://localhost:8000
   - Generic components: `DocumentBuilder`, `DocumentChat`, `AgreementDocument` (screen) and `AgreementPdf` (PDF, named `<slug>-<companies>.pdf`). `lib/nda.ts` now holds only the NDA cover page.
 
 ### Not yet implemented
-Real authentication and document persistence (planned for later tickets).
+**PL-7** (next, the last planned ticket): support multiple users and final polish.
+- Real sign up and sign in screens (replacing the fake `SignInGate`) so users can register and come back.
+- Store each user's generated documents and let them view prior ones. Data stays temporary: the database still resets on every server start.
+- Professional SaaS polish across all screens.
+- A disclaimer that documents are drafts subject to legal review.
 
 ### Known limitations
 - The model sometimes leaves a value the user mentioned unfilled, and clears the previous document's fields when the user switches documents (prompt quality, not schema).

@@ -74,8 +74,7 @@ Backend available at http://localhost:8000
   - The Mutual NDA keeps its Common Paper cover page (`fillCoverPage`); other documents get a generated Key Terms page (`frontend/lib/documents.ts`). Parties are shared by all documents, so they carry over on a switch.
   - `lib/markdown.ts` writes the `field`/`blank` markers and `parseMarkdown` reads them; it also treats every `*_link` and `header_2`/`header_3` span as a term, unwraps `<span id>` anchors, and disables indented code (DPA clauses were being read as code blocks).
   - Generic components: `DocumentBuilder`, `DocumentChat`, `AgreementDocument` (screen) and `AgreementPdf` (PDF, named `<slug>-<companies>.pdf`). `lib/nda.ts` now holds only the NDA cover page.
-
-- **PL-7**: Multiple users, saved documents, polish and a draft disclaimer.
+- **PL-7** (PR #8, merged): Multiple users, saved documents, polish and a draft disclaimer.
   - `backend/auth.py`: pwdlib Argon2 password hashes; an opaque token in the `sessions` table is set as an HttpOnly SameSite=Lax `session` cookie. `require_user` is the FastAPI dependency behind every protected route (401 when signed out). Emails are trimmed and lowercased by `Credentials`.
   - `backend/saved_documents.py`: `saved_documents` table (draft and transcript as JSON). `POST /api/chat` autosaves after each successful turn once `documentId` is set; the client round-trips `savedId` so a conversation updates one row. Every query filters by `user_id`, so another user's id is a 404 (or a new row on save).
   - `chat.ChatReply` stays the LLM's structured-output schema; the route returns `SavedChatReply` (adds `savedId`) so the model is never asked for an id.
@@ -83,8 +82,14 @@ Backend available at http://localhost:8000
   - Frontend: `App` restores the session via `/api/auth/me`, then shows `AuthScreen`, `DocumentsList` (My documents) or `DocumentBuilder` under `AppHeader`. A reopened draft gets a fresh builder via a React `key`; a 401 anywhere (e.g. after a server restart wipes sessions) returns to sign-in. `lib/api.ts` wraps same-origin fetches and raises `ApiError(status, detail)`.
   - `DraftNotice` shows above every preview; the same wording (`DRAFT_NOTICE`) is a fixed footer on every PDF page.
 
+### Not yet implemented
+All planned tickets (PL-2 to PL-7) are done; there is no next ticket yet.
+
 ### Known limitations
 - The model sometimes leaves a value the user mentioned unfilled, and clears the previous document's fields when the user switches documents (prompt quality, not schema).
+- Sessions never expire (they are wiped with the database on every server start).
+- Sign-in answers an unknown email faster than a wrong password (no Argon2 check runs), so timing hints at which emails have accounts; sign-up's 409 reveals this anyway.
+- Opening two saved documents in quick succession can show whichever loads last.
 
 ### Current API Endpoints
 - `GET /api/health` - Health check
